@@ -1,4 +1,23 @@
-# discounts-card
+# discounts-card (Kaufland fork)
+
+> **This is a fork of [schblondie/discounts-card](https://github.com/schblondie/discounts-card), the original/authoritative project.**
+> It exists for one reason: the upstream card's shop-name detection used a
+> hardcoded list that didn't include **Kaufland**, so Kaufland offers/coupon
+> sensors couldn't get a proper shop label (e.g. for shopping-list item
+> suffixes). This fork adds that one piece of Kaufland recognition and
+> auto-syncs with upstream weekly so it doesn't drift or fall behind.
+>
+> The Kaufland-specific change in this fork was written with AI
+> assistance. **Everything else below is unmodified upstream
+> documentation**, kept here for convenience — for the authoritative docs,
+> issues, and releases, see the [original repository](https://github.com/schblondie/discounts-card).
+>
+> If you don't use Kaufland, install the original
+> [schblondie/discounts-card](https://github.com/schblondie/discounts-card)
+> instead of this fork.
+
+---
+
 A Lovelace card for Home Assistant to browse weekly supermarket discounts, compare offers across multiple stores, and sync items to your shopping list.
 
 Supports both **Visual UI Editor (GUI)** and **Manual YAML Configuration**.
@@ -45,10 +64,16 @@ Requires one or more discount sensor integrations:
 
 ### HACS (Recommended)
 
+**For this Kaufland fork:**
 1. Open HACS > **Custom repositories**.
-2. Add repository `https://github.com/schblondie/discounts-card` with category `Dashboard` (or `Lovelace`).
-3. Search for **Discounts Card** and click **Download**.
+2. Add repository `https://github.com/dev-ath0m/lovelace-groceries-kaufland-fix` with category `Dashboard` (or `Lovelace`).
+3. Search for **Discounts Card (Kaufland Fix)** and click **Download**.
 4. Reload browser. Add via UI card picker or Dashboard YAML.
+
+**For the original card (no Kaufland):** use
+`https://github.com/schblondie/discounts-card` instead in step 2 — see the
+[upstream README](https://github.com/schblondie/discounts-card#readme)
+for its own installation instructions.
 
 ---
 
