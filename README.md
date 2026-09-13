@@ -23,6 +23,7 @@ Supports both **Visual UI Editor (GUI)** and **Manual YAML Configuration**.
 Requires one or more discount sensor integrations:
 - [REWE Discounts Integration](https://github.com/FaserF/ha-rewe)
 - [Edeka Discounts Integration](https://github.com/FaserF/ha-edeka)
+- [Kaufland Discounts Integration](https://github.com/dev-ath0m/ha-kaufland)
 - [Lidl Discounts Integration](https://github.com/FaserF/ha-lidl)
 - [Aldi Discounts Integration](https://github.com/FaserF/ha-aldi)
 - [Norma Discounts Integration](https://github.com/FaserF/ha-norma)
