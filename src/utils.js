@@ -71,6 +71,7 @@ export function detectStoreLabel(entityId = '', hass = null) {
   const source = `${ent} ${friendlyName}`;
   if (source.includes('aldi')) return 'ALDI';
   if (source.includes('edeka')) return 'EDEKA';
+  if (source.includes('kaufland')) return 'KAUFLAND';
   if (source.includes('lidl')) return 'LIDL';
   if (source.includes('norma')) return 'NORMA';
   if (source.includes('rewe')) return 'REWE';

@@ -78,6 +78,8 @@ class DiscountsCard extends HTMLElement {
         e.includes('lidl') ||
         e.startsWith('sensor.aldi') ||
         e.includes('aldi') ||
+        e.startsWith('sensor.kaufland') ||
+        e.includes('kaufland') ||
         e.startsWith('sensor.norma') ||
         e.includes('norma') ||
         e.includes('discount') ||
