@@ -404,6 +404,66 @@ summary,
   flex-shrink: 0;
 }
 
+.offer-image--zoomable {
+  cursor: zoom-in;
+}
+
+.image-zoom-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.85);
+  z-index: 9999;
+  animation: image-zoom-fade-in 0.15s ease-out;
+}
+
+@keyframes image-zoom-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.image-zoom-content {
+  max-width: 90vw;
+  max-height: 90vh;
+  object-fit: contain;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
+  cursor: zoom-out;
+}
+
+.image-zoom-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.image-zoom-close svg {
+  width: 22px;
+  height: 22px;
+}
+
+.image-zoom-close:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
 .offer-image-placeholder {
   width: 44px;
   height: 44px;
