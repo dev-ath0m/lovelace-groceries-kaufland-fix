@@ -1,19 +1,25 @@
 # discounts-card (Kaufland fork)
 
 > **This is a fork of [schblondie/discounts-card](https://github.com/schblondie/discounts-card), the original/authoritative project.**
-> It exists for one reason: the upstream card's shop-name detection used a
+> It started for one reason: the upstream card's shop-name detection used a
 > hardcoded list that didn't include **Kaufland**, so Kaufland offers/coupon
 > sensors couldn't get a proper shop label (e.g. for shopping-list item
-> suffixes). This fork adds that one piece of Kaufland recognition and
+> suffixes). This fork adds that piece of Kaufland recognition and
 > auto-syncs with upstream weekly so it doesn't drift or fall behind.
 >
-> The Kaufland-specific change in this fork was written with AI
-> assistance. **Everything else below is unmodified upstream
+> This fork also adds a **zoom-on-click feature for product images**: click
+> any product image to open a full-screen preview (closable via the close
+> button, the Escape key, or clicking outside the image). It's enabled by
+> default and can be toggled via the new `zoom_images` option or the visual
+> editor.
+>
+> The Kaufland-specific and zoom-on-click changes in this fork were written
+> with AI assistance. **Everything else below is unmodified upstream
 > documentation**, kept here for convenience — for the authoritative docs,
 > issues, and releases, see the [original repository](https://github.com/schblondie/discounts-card).
 >
-> If you don't use Kaufland, install the original
-> [schblondie/discounts-card](https://github.com/schblondie/discounts-card)
+> If you don't need Kaufland support or the image zoom feature, install the
+> original [schblondie/discounts-card](https://github.com/schblondie/discounts-card)
 > instead of this fork.
 
 ---
@@ -57,6 +63,7 @@ Requires one or more discount sensor integrations:
 - **Default Currency Fallback**: Fix missing price units (e.g. Edeka sensor offers missing `€`).
 - **Shopping List / Todo Sync**: Increment, decrement, or set custom item quantities; add store-tagged manual items; clear per store.
 - **Search & Filter**: Real-time offer search by product, brand, or category.
+- **Zoom on Click**: Click a product image to open a full-screen preview; close via the close button, Escape, or clicking outside the image. *(Kaufland fork addition)*
 
 ---
 
@@ -100,6 +107,7 @@ for its own installation instructions.
 | `entities`                   | list    | **Required** |         | List of store configurations (see table below) |
 | `title`                      | string  | **Optional** |         | Card header title override                     |
 | `show_images`                | boolean | **Optional** | `true`  | Show product images                            |
+| `zoom_images`                | boolean | **Optional** | `true`  | Click a product image to open a full-screen zoom preview *(Kaufland fork addition)* |
 | `enable_search`              | boolean | **Optional** | `true`  | Show search bar                                |
 | `collapsible_categories`     | boolean | **Optional** | `true`  | Allow collapsing category sections             |
 | `categories_open_by_default` | boolean | **Optional** | `true`  | Open category groups on card load              |
