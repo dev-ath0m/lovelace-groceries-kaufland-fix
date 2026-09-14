@@ -145,6 +145,7 @@ class DiscountsCard extends HTMLElement {
         todo_enabled: false,
         todo_entity: '',
         todo_price: false,
+        todo_due_date: true,
         only_show_todo: false,
         category_layout: 'keep'
       }
@@ -215,6 +216,7 @@ class DiscountsCard extends HTMLElement {
         todo_enabled: todoConfig.todo_enabled ?? config.enable_todo ?? config.todo_enabled ?? false,
         todo_entity: todoConfig.todo_entity ?? config.todo_entity ?? '',
         todo_price: priceSetting,
+        todo_due_date: todoConfig.todo_due_date ?? config.todo_due_date ?? true,
         only_show_todo: todoConfig.only_show_todo ?? config.only_show_todo ?? false,
         category_layout: todoConfig.category_layout ?? config.todo_category_layout ?? 'keep'
       }
@@ -287,8 +289,8 @@ class DiscountsCard extends HTMLElement {
     this._customStoreTodoItems = customStoreTodoItems;
   }
 
-  async _updateTodoQuantity(itemName, itemPrice = '', mode = 'inc', customCount = null, entityId = '') {
-    await updateTodoQuantity(this._hass, this.config, itemName, itemPrice, mode, customCount, entityId);
+  async _updateTodoQuantity(itemName, itemPrice = '', mode = 'inc', customCount = null, entityId = '', dateFrom = '', dateTo = '') {
+    await updateTodoQuantity(this._hass, this.config, itemName, itemPrice, mode, customCount, entityId, dateFrom, dateTo);
     await this._fetchTodoCounts();
     this._patchTodoElementsOnly();
   }
@@ -490,9 +492,11 @@ class DiscountsCard extends HTMLElement {
           const itemName = decodeURIComponent(addBtn.dataset.item);
           const itemPrice = decodeURIComponent(addBtn.dataset.price || '');
           const entityId = decodeURIComponent(addBtn.dataset.entity || '');
+          const dateFrom = decodeURIComponent(addBtn.dataset.dateFrom || '');
+          const dateTo = decodeURIComponent(addBtn.dataset.dateTo || '');
           addBtn.classList.add('added');
           setTimeout(() => addBtn.classList.remove('added'), 600);
-          this._updateTodoQuantity(itemName, itemPrice, 'inc', null, entityId);
+          this._updateTodoQuantity(itemName, itemPrice, 'inc', null, entityId, dateFrom, dateTo);
           return;
         }
         if (decBtn) {

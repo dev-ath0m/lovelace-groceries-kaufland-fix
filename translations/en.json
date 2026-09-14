@@ -26,7 +26,8 @@
     "decrease": "Decrease",
     "remove": "Remove",
     "add": "Add",
-    "close": "Close"
+    "close": "Close",
+    "valid_from_description": "Valid from: {date}"
   },
   "aldi": {
     "title": "Aldi Offers"
@@ -65,6 +66,7 @@
     "todo_entity": "Shopping List Entity (optional)",
     "todo_logo": "Append Supermarket Name to Shopping List",
     "todo_price": "Append Price to Shopping List",
+    "todo_due_date": "Set Due Date & Description from Offer",
     "only_show_todo": "Show Shopping List On Load",
     "category_layout": "Shopping List Behavior",
     "category_layout_keep": "Keep Category Behavior",
