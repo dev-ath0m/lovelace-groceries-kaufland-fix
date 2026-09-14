@@ -13,6 +13,12 @@
 > default and can be toggled via the new `zoom_images` option or the visual
 > editor.
 >
+> This fork also **carries an offer's dates over to the shopping list**:
+> when an offer is added to a `todo` entity, its end date is set as the
+> to-do item's due date and its start date is appended to the item's
+> description (when the target list supports it). Enabled by default and
+> can be toggled via the new `todo_due_date` option or the visual editor.
+>
 > The Kaufland-specific and zoom-on-click changes in this fork were written
 > with AI assistance. **Everything else below is unmodified upstream
 > documentation**, kept here for convenience — for the authoritative docs,
@@ -64,6 +70,7 @@ Requires one or more discount sensor integrations:
 - **Shopping List / Todo Sync**: Increment, decrement, or set custom item quantities; add store-tagged manual items; clear per store.
 - **Search & Filter**: Real-time offer search by product, brand, or category.
 - **Zoom on Click**: Click a product image to open a full-screen preview; close via the close button, Escape, or clicking outside the image. *(Kaufland fork addition)*
+- **Offer Due Dates on Shopping List**: When adding an offer to a `todo` entity, its end date becomes the item's due date and its start date is appended to the item's description. *(Kaufland fork addition)*
 
 ---
 
@@ -156,6 +163,7 @@ Categories in `filter_categories` and `category_groups.members` support 3 format
 | `todo_enabled`    | boolean | **Optional** | `false` | Enable shopping list counter & sync buttons                                                   |
 | `todo_entity`     | string  | **Optional** |         | Target `todo` entity (e.g. `todo.shopping_list`). Defaults to native Shopping List if omitted |
 | `todo_price`      | boolean | **Optional** | `false` | Append price to item summary on todo list                                                     |
+| `todo_due_date`   | boolean | **Optional** | `true`  | Set the offer's end date as the to-do item's due date and append its start date to the description. Only applies to `todo_entity` targets that support due dates/descriptions; the native Shopping List integration doesn't support either. *(Kaufland fork addition)* |
 | `only_show_todo`  | boolean | **Optional** | `false` | Default card view to shopping list items only                                                 |
 | `category_layout` | string  | **Optional** | `keep`  | Shopping list view layout: `keep`, `always_open`, or `flat`                                   |
 

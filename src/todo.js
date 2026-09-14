@@ -3,8 +3,13 @@ import {
   parseMultiplier,
   detectStoreLabel,
   formatTodoItemName,
-  normalizeOffer
+  normalizeOffer,
+  toIsoDateString
 } from './utils.js';
+
+// homeassistant.components.todo.TodoListEntityFeature bit flags
+const TODO_FEATURE_SET_DUE_DATE = 16;
+const TODO_FEATURE_SET_DESCRIPTION = 64;
 
 export async function fetchTodoCounts(hass, config, getRawOffersForEntity) {
   if (!hass || !config?.todo?.todo_enabled) {
@@ -75,7 +80,7 @@ export async function fetchTodoCounts(hass, config, getRawOffersForEntity) {
   }
 }
 
-export async function updateTodoQuantity(hass, config, itemName, itemPrice = '', mode = 'inc', customCount = null, entityId = '') {
+export async function updateTodoQuantity(hass, config, itemName, itemPrice = '', mode = 'inc', customCount = null, entityId = '', dateFrom = '', dateTo = '') {
   if (!hass) return;
   const formattedItemName = formatTodoItemName(itemName, itemPrice, entityId, config, hass);
   const todoEntity = config.todo?.todo_entity;
@@ -98,10 +103,22 @@ export async function updateTodoQuantity(hass, config, itemName, itemPrice = '',
         }
       } else if (mode === 'inc' || (mode === 'set' && customCount > 0)) {
         const count = mode === 'set' ? customCount : 1;
-        await hass.callService('todo', 'add_item', {
+        const serviceData = {
           entity_id: todoEntity,
           item: count > 1 ? `${count}x ${target.base}` : target.base
-        });
+        };
+        if (config.todo?.todo_due_date !== false) {
+          const supportedFeatures = hass.states?.[todoEntity]?.attributes?.supported_features || 0;
+          const dueDate = toIsoDateString(dateTo);
+          const startDate = toIsoDateString(dateFrom);
+          if (dueDate && (supportedFeatures & TODO_FEATURE_SET_DUE_DATE) !== 0) {
+            serviceData.due_date = dueDate;
+          }
+          if (startDate && (supportedFeatures & TODO_FEATURE_SET_DESCRIPTION) !== 0) {
+            serviceData.description = localize('default.valid_from_description', hass).replace('{date}', startDate);
+          }
+        }
+        await hass.callService('todo', 'add_item', serviceData);
       }
     } else {
       const items = (await hass.callWS({ type: 'shopping_list/items' })) || [];
