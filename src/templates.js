@@ -53,12 +53,13 @@ export function renderOfferItemHtml(item, config, hass, filterQuery, getItemTodo
   const storeLabel = detectStoreLabel(storeEntity, hass);
   const existingCount = getItemTodoCount(item, storeEntity);
   const isBroken = !sanitizedImgUrl || brokenImageUrls.has(sanitizedImgUrl);
+  const zoomEnabled = config.zoom_images !== false;
   return `
     <div class="offer-item">
       ${config.show_images && !isBroken
       ? `
             <img
-              class="offer-image"
+              class="offer-image${zoomEnabled ? ' offer-image--zoomable' : ''}"
               src="${safeImgUrl}"
               data-src="${safeImgUrl}"
               alt="${safeName}"

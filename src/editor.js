@@ -683,6 +683,7 @@ export class DiscountsCardEditor extends HTMLElement {
         type: 'grid',
         schema: [
           { name: 'show_images', selector: { boolean: {} } },
+          { name: 'zoom_images', selector: { boolean: {} } },
           { name: 'enable_search', selector: { boolean: {} } },
           { name: 'collapsible_categories', selector: { boolean: {} } },
           { name: 'categories_open_by_default', selector: { boolean: {} } }

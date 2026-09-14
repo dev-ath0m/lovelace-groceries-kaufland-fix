@@ -43,6 +43,8 @@ class DiscountsCard extends HTMLElement {
     this._customInputValues = {};
     this._customInputSelections = {};
     this._focusedCustomInputStore = null;
+    this._imageZoomOverlay = null;
+    this._imageZoomKeyHandler = null;
     this._debouncedOffersUpdate = debounce(() => this._updateOffersList(), 120);
     this._onDocClick = (e) => {
       if (!this._menuOpen) return;
@@ -61,6 +63,42 @@ class DiscountsCard extends HTMLElement {
 
   disconnectedCallback() {
     document.removeEventListener('click', this._onDocClick);
+    this._closeImageZoom();
+  }
+
+  _openImageZoom(src, alt) {
+    if (!src) return;
+    this._closeImageZoom();
+    const overlay = document.createElement('div');
+    overlay.className = 'image-zoom-overlay';
+    overlay.innerHTML = `
+      <button class="image-zoom-close" title="${escapeHtml(localize('default.close', this._hass) || 'Close')}">
+        ${renderSvg(ICONS.close)}
+      </button>
+      <img class="image-zoom-content" src="${escapeHtml(src)}" alt="${escapeHtml(alt || '')}" />
+    `;
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay || e.target.closest('.image-zoom-close') || e.target.classList.contains('image-zoom-content')) {
+        this._closeImageZoom();
+      }
+    });
+    this._imageZoomKeyHandler = (e) => {
+      if (e.key === 'Escape') this._closeImageZoom();
+    };
+    document.addEventListener('keydown', this._imageZoomKeyHandler);
+    this.shadowRoot.appendChild(overlay);
+    this._imageZoomOverlay = overlay;
+  }
+
+  _closeImageZoom() {
+    if (this._imageZoomOverlay) {
+      this._imageZoomOverlay.remove();
+      this._imageZoomOverlay = null;
+    }
+    if (this._imageZoomKeyHandler) {
+      document.removeEventListener('keydown', this._imageZoomKeyHandler);
+      this._imageZoomKeyHandler = null;
+    }
   }
 
   static async getConfigElement() {
@@ -99,6 +137,7 @@ class DiscountsCard extends HTMLElement {
       title: '',
       entities: selectedEntities.length > 0 ? selectedEntities : [{ entity: '', title: '', default_selected: true, default_currency: '', subcategory_separator: '', category_groups: [], filter_mode: 'none', filter_categories: [] }],
       show_images: true,
+      zoom_images: true,
       enable_search: true,
       collapsible_categories: true,
       categories_open_by_default: true,
@@ -166,6 +205,7 @@ class DiscountsCard extends HTMLElement {
     this.config = {
       title: config.title || '',
       show_images: true,
+      zoom_images: true,
       enable_search: true,
       collapsible_categories: true,
       categories_open_by_default: true,
@@ -397,6 +437,12 @@ class DiscountsCard extends HTMLElement {
         }
       });
       contentContainer.addEventListener('click', (e) => {
+        const zoomableImg = e.target.closest('.offer-image--zoomable');
+        if (zoomableImg) {
+          e.stopPropagation();
+          this._openImageZoom(zoomableImg.getAttribute('data-src') || zoomableImg.src, zoomableImg.alt);
+          return;
+        }
         const addBtn = e.target.closest('.btn-add-todo');
         const decBtn = e.target.closest('.btn-dec-todo');
         const countBadge = e.target.closest('.todo-count-badge');

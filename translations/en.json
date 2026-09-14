@@ -25,7 +25,8 @@
     "quantity_prompt": "Quantity for \"{item}\":",
     "decrease": "Decrease",
     "remove": "Remove",
-    "add": "Add"
+    "add": "Add",
+    "close": "Close"
   },
   "aldi": {
     "title": "Aldi Offers"
@@ -47,6 +48,7 @@
     "title": "Display name (optional)",
     "default_selected": "Selected by default",
     "show_images": "Show Product Images",
+    "zoom_images": "Zoom Images on Click",
     "enable_search": "Enable Search Functionality",
     "collapsible_categories": "Collapsible Categories",
     "categories_open_by_default": "Categories Open by Default",

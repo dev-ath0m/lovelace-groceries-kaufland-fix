@@ -25,7 +25,8 @@
     "quantity_prompt": "Menge für \"{item}\":",
     "decrease": "Verringern",
     "remove": "Entfernen",
-    "add": "Hinzufügen"
+    "add": "Hinzufügen",
+    "close": "Schließen"
   },
   "aldi": {
     "title": "Aldi Angebote"
@@ -47,6 +48,7 @@
     "title": "Anzeigename (optional)",
     "default_selected": "Standardmäßig ausgewählt",
     "show_images": "Produktbilder anzeigen",
+    "zoom_images": "Bilder bei Klick vergrößern",
     "enable_search": "Suchfunktion aktivieren",
     "collapsible_categories": "Kategorien einklappbar",
     "categories_open_by_default": "Kategorien standardmäßig geöffnet",
