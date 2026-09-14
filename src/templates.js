@@ -93,7 +93,7 @@ export function renderOfferItemHtml(item, config, hass, filterQuery, getItemTodo
     }
       ${config.todo?.todo_enabled
       ? `
-            <div class="todo-btn-container" data-item="${encodeURIComponent(item._name)}" data-price="${encodeURIComponent(item._displayPrice || '')}" data-entity="${encodeURIComponent(storeEntity || '')}">
+            <div class="todo-btn-container" data-item="${encodeURIComponent(item._name)}" data-price="${encodeURIComponent(item._displayPrice || '')}" data-entity="${encodeURIComponent(storeEntity || '')}" data-date-from="${encodeURIComponent(item._dateFrom || '')}" data-date-to="${encodeURIComponent(item._dateTo || '')}">
               ${renderTodoControlsHtml(item._name, item._displayPrice, existingCount, storeEntity, hass, item._dateFrom, item._dateTo)}
             </div>
           `

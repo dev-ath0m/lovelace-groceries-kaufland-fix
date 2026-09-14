@@ -318,8 +318,10 @@ class DiscountsCard extends HTMLElement {
       const name = decodeURIComponent(todoContainer.dataset.item || '');
       const price = decodeURIComponent(todoContainer.dataset.price || '');
       const entityId = decodeURIComponent(todoContainer.dataset.entity || '');
+      const dateFrom = decodeURIComponent(todoContainer.dataset.dateFrom || '');
+      const dateTo = decodeURIComponent(todoContainer.dataset.dateTo || '');
       const count = this._getItemTodoCount({ _name: name, _displayPrice: price }, entityId);
-      todoContainer.innerHTML = renderTodoControlsHtml(name, price, count, entityId, this._hass);
+      todoContainer.innerHTML = renderTodoControlsHtml(name, price, count, entityId, this._hass, dateFrom, dateTo);
     });
     if (this._filterTodoOnly) {
       this._updateOffersList();
