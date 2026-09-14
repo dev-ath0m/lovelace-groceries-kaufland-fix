@@ -92,6 +92,18 @@ export async function updateTodoQuantity(hass, config, itemName, itemPrice = '',
       const existing = items.find(
         (i) => i.status !== 'completed' && parseMultiplier(i.summary).base.toLowerCase() === target.base.toLowerCase()
       );
+      const supportedFeatures = hass.states?.[todoEntity]?.attributes?.supported_features || 0;
+      const dueDate = toIsoDateString(dateTo);
+      const startDate = toIsoDateString(dateFrom);
+      const applyDates = (serviceData) => {
+        if (config.todo?.todo_due_date === false) return;
+        if (dueDate && (supportedFeatures & TODO_FEATURE_SET_DUE_DATE) !== 0) {
+          serviceData.due_date = dueDate;
+        }
+        if (startDate && (supportedFeatures & TODO_FEATURE_SET_DESCRIPTION) !== 0) {
+          serviceData.description = localize('default.valid_from_description', hass).replace('{date}', startDate);
+        }
+      };
       if (existing) {
         const current = parseMultiplier(existing.summary);
         let nextCount = mode === 'inc' ? current.count + 1 : mode === 'dec' ? current.count - 1 : customCount;
@@ -99,7 +111,11 @@ export async function updateTodoQuantity(hass, config, itemName, itemPrice = '',
           await hass.callService('todo', 'remove_item', { entity_id: todoEntity, item: [existing.uid] });
         } else {
           const newSummary = nextCount > 1 ? `${nextCount}x ${current.base}` : current.base;
-          await hass.callService('todo', 'update_item', { entity_id: todoEntity, item: existing.uid, rename: newSummary });
+          const serviceData = { entity_id: todoEntity, item: existing.uid, rename: newSummary };
+          if (!existing.due && !existing.description) {
+            applyDates(serviceData);
+          }
+          await hass.callService('todo', 'update_item', serviceData);
         }
       } else if (mode === 'inc' || (mode === 'set' && customCount > 0)) {
         const count = mode === 'set' ? customCount : 1;
@@ -107,17 +123,7 @@ export async function updateTodoQuantity(hass, config, itemName, itemPrice = '',
           entity_id: todoEntity,
           item: count > 1 ? `${count}x ${target.base}` : target.base
         };
-        if (config.todo?.todo_due_date !== false) {
-          const supportedFeatures = hass.states?.[todoEntity]?.attributes?.supported_features || 0;
-          const dueDate = toIsoDateString(dateTo);
-          const startDate = toIsoDateString(dateFrom);
-          if (dueDate && (supportedFeatures & TODO_FEATURE_SET_DUE_DATE) !== 0) {
-            serviceData.due_date = dueDate;
-          }
-          if (startDate && (supportedFeatures & TODO_FEATURE_SET_DESCRIPTION) !== 0) {
-            serviceData.description = localize('default.valid_from_description', hass).replace('{date}', startDate);
-          }
-        }
+        applyDates(serviceData);
         await hass.callService('todo', 'add_item', serviceData);
       }
     } else {
