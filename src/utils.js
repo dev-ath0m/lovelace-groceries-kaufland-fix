@@ -85,6 +85,15 @@ export function formatTodoItemName(itemName, itemPrice, entityId = '', config = 
   return !config.todo?.todo_price || !itemPrice ? baseName : `${baseName} - ${itemPrice}`;
 }
 
+export function toIsoDateString(value) {
+  if (!value) return '';
+  const str = String(value).trim();
+  const isoMatch = str.match(/^(\d{4}-\d{2}-\d{2})/);
+  if (isoMatch) return isoMatch[1];
+  const parsed = new Date(str);
+  return Number.isNaN(parsed.getTime()) ? '' : parsed.toISOString().slice(0, 10);
+}
+
 export function escapeHtml(value) {
   if (value === null || value === undefined) return '';
   return String(value)
@@ -154,6 +163,25 @@ export function normalizeOffer(item, storeEntity, hass = null, storeConf = null)
 
   const defaultCurrency = typeof storeConf?.default_currency === 'string' ? storeConf.default_currency.trim() : '';
 
+  const dateFrom =
+    item.date_from ||
+    item.dateFrom ||
+    item.valid_from ||
+    item.validFrom ||
+    item.start_date ||
+    item.startDate ||
+    '';
+  const dateTo =
+    item.date_to ||
+    item.dateTo ||
+    item.valid_to ||
+    item.validTo ||
+    item.end_date ||
+    item.endDate ||
+    item.untilDate ||
+    item.until_date ||
+    '';
+
   return {
     ...item,
     _storeEntity: storeEntity,
@@ -165,6 +193,8 @@ export function normalizeOffer(item, storeEntity, hass = null, storeConf = null)
     _displayOldPrice: formatPrice(oldPrice, defaultCurrency),
     _subtitle: subtitle,
     _category: category,
+    _dateFrom: toIsoDateString(dateFrom),
+    _dateTo: toIsoDateString(dateTo),
     _searchKey: `${name} ${category} ${subtitle}`.toLowerCase()
   };
 }

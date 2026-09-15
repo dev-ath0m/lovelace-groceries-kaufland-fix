@@ -704,6 +704,7 @@ export class DiscountsCardEditor extends HTMLElement {
           { name: 'todo_enabled', selector: { boolean: {} } },
           { name: 'todo_entity', selector: { entity: { domain: 'todo' } } },
           { name: 'todo_price', selector: { boolean: {} } },
+          { name: 'todo_due_date', selector: { boolean: {} } },
           { name: 'only_show_todo', selector: { boolean: {} } },
           {
             name: 'category_layout',

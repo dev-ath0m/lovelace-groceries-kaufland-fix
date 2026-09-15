@@ -17,13 +17,15 @@ export function renderSvg(path) {
   return `<svg viewBox="0 0 24 24" fill="currentColor"><path d="${path}"/></svg>`;
 }
 
-export function renderTodoControlsHtml(name, price, count, entityId = '', hass = null) {
+export function renderTodoControlsHtml(name, price, count, entityId = '', hass = null, dateFrom = '', dateTo = '') {
   const safeItem = encodeURIComponent(name);
   const safePrice = encodeURIComponent(price || '');
   const safeEntity = encodeURIComponent(entityId || '');
+  const safeDateFrom = encodeURIComponent(dateFrom || '');
+  const safeDateTo = encodeURIComponent(dateTo || '');
   if (count <= 0) {
     return `
-      <button class="btn-todo-action btn-add-todo" title="${localize('default.add_to_shopping_list', hass)}" data-item="${safeItem}" data-price="${safePrice}" data-entity="${safeEntity}">
+      <button class="btn-todo-action btn-add-todo" title="${localize('default.add_to_shopping_list', hass)}" data-item="${safeItem}" data-price="${safePrice}" data-entity="${safeEntity}" data-date-from="${safeDateFrom}" data-date-to="${safeDateTo}">
         ${renderSvg(ICONS.plus)}
       </button>
     `;
@@ -36,7 +38,7 @@ export function renderTodoControlsHtml(name, price, count, entityId = '', hass =
     <button class="todo-count-badge" title="${localize('default.set_quantity', hass)}" data-item="${safeItem}" data-price="${safePrice}" data-count="${count}" data-entity="${safeEntity}">
       ${count}x
     </button>
-    <button class="btn-todo-action btn-add-todo" title="${localize('default.add_to_shopping_list', hass)}" data-item="${safeItem}" data-price="${safePrice}" data-entity="${safeEntity}">
+    <button class="btn-todo-action btn-add-todo" title="${localize('default.add_to_shopping_list', hass)}" data-item="${safeItem}" data-price="${safePrice}" data-entity="${safeEntity}" data-date-from="${safeDateFrom}" data-date-to="${safeDateTo}">
       ${renderSvg(ICONS.plus)}
     </button>
   `;
@@ -91,8 +93,8 @@ export function renderOfferItemHtml(item, config, hass, filterQuery, getItemTodo
     }
       ${config.todo?.todo_enabled
       ? `
-            <div class="todo-btn-container" data-item="${encodeURIComponent(item._name)}" data-price="${encodeURIComponent(item._displayPrice || '')}" data-entity="${encodeURIComponent(storeEntity || '')}">
-              ${renderTodoControlsHtml(item._name, item._displayPrice, existingCount, storeEntity, hass)}
+            <div class="todo-btn-container" data-item="${encodeURIComponent(item._name)}" data-price="${encodeURIComponent(item._displayPrice || '')}" data-entity="${encodeURIComponent(storeEntity || '')}" data-date-from="${encodeURIComponent(item._dateFrom || '')}" data-date-to="${encodeURIComponent(item._dateTo || '')}">
+              ${renderTodoControlsHtml(item._name, item._displayPrice, existingCount, storeEntity, hass, item._dateFrom, item._dateTo)}
             </div>
           `
       : ''

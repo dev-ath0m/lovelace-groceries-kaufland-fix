@@ -26,7 +26,8 @@
     "decrease": "Verringern",
     "remove": "Entfernen",
     "add": "Hinzufügen",
-    "close": "Schließen"
+    "close": "Schließen",
+    "valid_from_description": "Gültig ab: {date}"
   },
   "aldi": {
     "title": "Aldi Angebote"
@@ -65,6 +66,7 @@
     "todo_entity": "Einkaufsliste Entität (optional)",
     "todo_logo": "Füge den Namen des Supermarkts in der Einkaufsliste an",
     "todo_price": "Füge den Preis an die Einkaufsliste an",
+    "todo_due_date": "Fälligkeitsdatum & Beschreibung aus Angebot übernehmen",
     "only_show_todo": "Einkaufsliste bei Laden anzeigen",
     "category_layout": "Verhalten der Einkaufsliste",
     "category_layout_keep": "Behalte das Verhalten der Kategorien bei",
