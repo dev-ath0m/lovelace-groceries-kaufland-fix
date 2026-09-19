@@ -112,9 +112,8 @@ export async function updateTodoQuantity(hass, config, itemName, itemPrice = '',
         } else {
           const newSummary = nextCount > 1 ? `${nextCount}x ${current.base}` : current.base;
           const serviceData = { entity_id: todoEntity, item: existing.uid, rename: newSummary };
-          if (!existing.due && !existing.description) {
-            applyDates(serviceData);
-          }
+          // Always apply the current offer dates. An existing todo may come from an older offer with a different validity period.
+          applyDates(serviceData);
           await hass.callService('todo', 'update_item', serviceData);
         }
       } else if (mode === 'inc' || (mode === 'set' && customCount > 0)) {
