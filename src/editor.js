@@ -128,6 +128,7 @@ export class DiscountsCardEditor extends HTMLElement {
       entity?.attributes?.entries ||
       entity?.attributes?.data ||
       entity?.attributes?.coupons ||
+      entity?.attributes?.all_matched_deals ||
       (Array.isArray(entity?.attributes) ? entity.attributes : []) ||
       [];
     const categories = new Set();
@@ -161,7 +162,7 @@ export class DiscountsCardEditor extends HTMLElement {
   _getGroupMemberOptions(storeConf, group) {
     if (!this._hass || !storeConf.entity) return [];
     const ent = this._hass.states[storeConf.entity];
-    const offers = ent?.attributes?.discounts || ent?.attributes?.offers || ent?.attributes?.items || ent?.attributes?.products || ent?.attributes?.articles || ent?.attributes?.entries || ent?.attributes?.data || ent?.attributes?.coupons || (Array.isArray(ent?.attributes) ? ent.attributes : []) || [];
+    const offers = ent?.attributes?.discounts || ent?.attributes?.offers || ent?.attributes?.items || ent?.attributes?.products || ent?.attributes?.articles || ent?.attributes?.entries || ent?.attributes?.data || ent?.attributes?.coupons || ent?.attributes?.all_matched_deals || (Array.isArray(ent?.attributes) ? ent.attributes : []) || [];
     const set = new Set();
     offers.forEach((item) => {
       const raw = item.category || item.category_name || item.section;
