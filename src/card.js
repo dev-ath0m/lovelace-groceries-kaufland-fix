@@ -624,6 +624,7 @@ class DiscountsCard extends HTMLElement {
       entity.attributes.entries ||
       entity.attributes.data ||
       entity.attributes.coupons ||
+      entity.attributes.all_matched_deals ||
       (Array.isArray(entity.attributes) ? entity.attributes : []) ||
       [];
     const normalized = offers.map((o) => normalizeOffer(o, entityId, this._hass, storeConf));
