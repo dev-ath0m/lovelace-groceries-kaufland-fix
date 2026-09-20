@@ -78,22 +78,9 @@ export function detectStoreLabel(entityId = '', hass = null) {
   return '';
 }
 
-export function detectOfferStoreLabel(item = {}, entityId = '', hass = null) {
-  const domain = String(item?.domain || '').trim().toLowerCase();
-  const storeName = String(item?.store_name || '').trim().toLowerCase();
-  const source = `${domain} ${storeName}`;
-  if (source.includes('aldi')) return 'ALDI';
-  if (source.includes('edeka')) return 'EDEKA';
-  if (source.includes('kaufland')) return 'KAUFLAND';
-  if (source.includes('lidl')) return 'LIDL';
-  if (source.includes('norma')) return 'NORMA';
-  if (source.includes('rewe')) return 'REWE';
-  return detectStoreLabel(entityId, hass);
-}
-
-export function formatTodoItemName(itemName, itemPrice, entityId = '', config = {}, hass = null, storeLabel = '') {
-  const resolvedStoreLabel = storeLabel || detectStoreLabel(entityId, hass);
-  const suffix = resolvedStoreLabel ? ` (${resolvedStoreLabel})` : '';
+export function formatTodoItemName(itemName, itemPrice, entityId = '', config = {}, hass = null) {
+  const storeLabel = detectStoreLabel(entityId, hass);
+  const suffix = storeLabel ? ` (${storeLabel})` : '';
   const baseName = `${itemName}${suffix}`;
   return !config.todo?.todo_price || !itemPrice ? baseName : `${baseName} - ${itemPrice}`;
 }
@@ -198,7 +185,6 @@ export function normalizeOffer(item, storeEntity, hass = null, storeConf = null)
   return {
     ...item,
     _storeEntity: storeEntity,
-    _storeLabel: detectOfferStoreLabel(item, storeEntity, hass),
     _name: name,
     _image: image,
     _price: price,
