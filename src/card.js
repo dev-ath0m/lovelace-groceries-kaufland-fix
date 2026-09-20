@@ -296,8 +296,8 @@ class DiscountsCard extends HTMLElement {
     this._customStoreTodoItems = customStoreTodoItems;
   }
 
-  async _updateTodoQuantity(itemName, itemPrice = '', mode = 'inc', customCount = null, entityId = '', dateFrom = '', dateTo = '', storeLabel = '') {
-    await updateTodoQuantity(this._hass, this.config, itemName, itemPrice, mode, customCount, entityId, dateFrom, dateTo, storeLabel);
+  async _updateTodoQuantity(itemName, itemPrice = '', mode = 'inc', customCount = null, entityId = '', dateFrom = '', dateTo = '') {
+    await updateTodoQuantity(this._hass, this.config, itemName, itemPrice, mode, customCount, entityId, dateFrom, dateTo);
     await this._fetchTodoCounts();
     this._patchTodoElementsOnly();
   }
@@ -509,7 +509,6 @@ class DiscountsCard extends HTMLElement {
           // updates and the Todo count refresh.
           const offers = this._getRawOffersForEntity(entityId);
           const matchingOffer = offers.find((offer) => offer._name === itemName);
-          const storeLabel = matchingOffer?._storeLabel || '';
           dateFrom = matchingOffer?._dateFrom || dateFrom;
           dateTo = matchingOffer?._dateTo || dateTo;
           addBtn.classList.add('added');
@@ -836,7 +835,7 @@ class DiscountsCard extends HTMLElement {
   }
 }
 
-const CARD_VERSION = '0.1.5';
+const CARD_VERSION = '0.1.6';
 console.info(
   `%c DISCOUNTS-CARD (KAUFLAND FIX) %c v${CARD_VERSION} `,
   'color: white; background: #039be5; font-weight: 700;',
