@@ -513,7 +513,7 @@ class DiscountsCard extends HTMLElement {
           dateTo = matchingOffer?._dateTo || dateTo;
           addBtn.classList.add('added');
           setTimeout(() => addBtn.classList.remove('added'), 600);
-          this._updateTodoQuantity(itemName, itemPrice, 'inc', null, entityId, dateFrom, dateTo, storeLabel);
+          this._updateTodoQuantity(itemName, itemPrice, 'inc', null, entityId, dateFrom, dateTo);
           return;
         }
         if (decBtn) {
