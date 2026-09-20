@@ -85,16 +85,21 @@ export async function updateTodoQuantity(hass, config, itemName, itemPrice = '',
   const formattedItemName = formatTodoItemName(itemName, itemPrice, entityId, config, hass, storeLabel);
   const todoEntity = config.todo?.todo_entity;
   const target = parseMultiplier(formattedItemName);
+  console.debug('[discounts-card][todo] update requested', { itemName, itemPrice, mode, customCount, entityId, storeLabel, dateFrom, dateTo, formattedItemName, todoEntity, target });
   try {
     if (todoEntity) {
+      console.debug('[discounts-card][todo] listing target Todo entity', todoEntity);
       const res = await hass.callWS({ type: 'todo/item/list', entity_id: todoEntity });
       const items = res?.items || [];
+      console.debug('[discounts-card][todo] Todo list returned', { entityId: todoEntity, itemCount: items.length, items });
       const existing = items.find(
         (i) => i.status !== 'completed' && parseMultiplier(i.summary).base.toLowerCase() === target.base.toLowerCase()
       );
+      console.debug('[discounts-card][todo] existing item match', existing || null);
       const supportedFeatures = hass.states?.[todoEntity]?.attributes?.supported_features || 0;
       const dueDate = toIsoDateString(dateTo);
       const startDate = toIsoDateString(dateFrom);
+      console.debug('[discounts-card][todo] normalized dates', { dueDate, startDate, todoDueDateEnabled: config.todo?.todo_due_date });
       const applyDates = (serviceData) => {
         if (config.todo?.todo_due_date === false) return;
         // The service itself validates whether the target list supports these fields.
@@ -117,7 +122,9 @@ export async function updateTodoQuantity(hass, config, itemName, itemPrice = '',
           const serviceData = { entity_id: todoEntity, item: existing.uid, rename: newSummary };
           // Always apply the current offer dates. An existing todo may come from an older offer with a different validity period.
           applyDates(serviceData);
+          console.debug('[discounts-card][todo] calling todo.update_item', serviceData);
           await hass.callService('todo', 'update_item', serviceData);
+          console.debug('[discounts-card][todo] todo.update_item succeeded', serviceData);
         }
       } else if (mode === 'inc' || (mode === 'set' && customCount > 0)) {
         const count = mode === 'set' ? customCount : 1;
@@ -132,24 +139,32 @@ export async function updateTodoQuantity(hass, config, itemName, itemPrice = '',
         // providers expose due-date/description support inconsistently in their
         // entity attributes. Sending optional fields in the initial add call can
         // therefore make the whole add fail even though the item itself is valid.
+        console.debug('[discounts-card][todo] calling todo.add_item', serviceData);
         await hass.callService('todo', 'add_item', serviceData);
+        console.debug('[discounts-card][todo] todo.add_item succeeded', serviceData);
 
         // Apply optional offer metadata after creation. This keeps the + button
         // functional for aggregated offers and providers with partial Todo API
         // support, while still preserving due dates where the service supports them.
         if (dueDate || startDate) {
           try {
+            console.debug('[discounts-card][todo] refreshing Todo list for metadata update', todoEntity);
             const refreshed = await hass.callWS({ type: 'todo/item/list', entity_id: todoEntity });
             const created = (refreshed?.items || []).find(
               (i) => i.status !== 'completed' && i.summary === serviceData.item
             );
+            console.debug('[discounts-card][todo] created item lookup', { requestedSummary: serviceData.item, created: created || null });
             if (created) {
               const metadata = { entity_id: todoEntity, item: created.uid };
               if (dueDate) metadata.due_date = dueDate;
               if (startDate) {
                 metadata.description = localize('default.valid_from_description', hass).replace('{date}', startDate);
               }
+              console.debug('[discounts-card][todo] calling todo.update_item for metadata', metadata);
               await hass.callService('todo', 'update_item', metadata);
+              console.debug('[discounts-card][todo] metadata update succeeded', metadata);
+            } else {
+              console.warn('[discounts-card][todo] item was added but could not be found for metadata update', serviceData.item);
             }
           } catch (metadataError) {
             console.warn('Todo item added, but offer metadata could not be applied:', metadataError);
@@ -178,7 +193,20 @@ export async function updateTodoQuantity(hass, config, itemName, itemPrice = '',
       }
     }
   } catch (err) {
-    console.error('Failed to update shopping list item quantity:', err);
+    console.error('[discounts-card][todo] Todo operation FAILED', {
+      error: err,
+      itemName,
+      itemPrice,
+      mode,
+      customCount,
+      entityId,
+      storeLabel,
+      dateFrom,
+      dateTo,
+      formattedItemName,
+      todoEntity
+    });
+    throw err;
   }
 }
 
