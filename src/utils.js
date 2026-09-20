@@ -172,12 +172,14 @@ export function normalizeOffer(item, storeEntity, hass = null, storeConf = null)
     item.startDate ||
     '';
   const dateTo =
-    item.date_to ||
-    item.dateTo ||
-    item.valid_to ||
-    item.validTo ||
     item.end_date ||
     item.endDate ||
+    item.date_to ||
+    item.dateTo ||
+    item.valid_until ||
+    item.validUntil ||
+    item.valid_to ||
+    item.validTo ||
     item.untilDate ||
     item.until_date ||
     '';
