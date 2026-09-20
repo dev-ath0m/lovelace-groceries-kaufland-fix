@@ -78,9 +78,9 @@ export function detectStoreLabel(entityId = '', hass = null) {
   return '';
 }
 
-export function formatTodoItemName(itemName, itemPrice, entityId = '', config = {}, hass = null) {
-  const storeLabel = detectStoreLabel(entityId, hass);
-  const suffix = storeLabel ? ` (${storeLabel})` : '';
+export function formatTodoItemName(itemName, itemPrice, entityId = '', config = {}, hass = null, storeLabel = '') {
+  const resolvedStoreLabel = storeLabel || detectStoreLabel(entityId, hass);
+  const suffix = resolvedStoreLabel ? ` (${resolvedStoreLabel})` : '';
   const baseName = `${itemName}${suffix}`;
   return !config.todo?.todo_price || !itemPrice ? baseName : `${baseName} - ${itemPrice}`;
 }
@@ -193,6 +193,12 @@ export function normalizeOffer(item, storeEntity, hass = null, storeConf = null)
     _displayOldPrice: formatPrice(oldPrice, defaultCurrency),
     _subtitle: subtitle,
     _category: category,
+    _storeLabel:
+      item.store_name ||
+      item.storeName ||
+      (typeof item.domain === 'string' && item.domain.trim()
+        ? item.domain.trim()
+        : ''),
     _dateFrom: toIsoDateString(dateFrom),
     _dateTo: toIsoDateString(dateTo),
     _searchKey: `${name} ${category} ${subtitle}`.toLowerCase()
