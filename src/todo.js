@@ -97,10 +97,13 @@ export async function updateTodoQuantity(hass, config, itemName, itemPrice = '',
       const startDate = toIsoDateString(dateFrom);
       const applyDates = (serviceData) => {
         if (config.todo?.todo_due_date === false) return;
-        if (dueDate && (supportedFeatures & TODO_FEATURE_SET_DUE_DATE) !== 0) {
+        // The service itself validates whether the target list supports these fields.
+        // Do not gate them on the entity attribute: some HA todo providers expose
+        // due-date support through the service while their state attributes lag behind.
+        if (dueDate) {
           serviceData.due_date = dueDate;
         }
-        if (startDate && (supportedFeatures & TODO_FEATURE_SET_DESCRIPTION) !== 0) {
+        if (startDate) {
           serviceData.description = localize('default.valid_from_description', hass).replace('{date}', startDate);
         }
       };
