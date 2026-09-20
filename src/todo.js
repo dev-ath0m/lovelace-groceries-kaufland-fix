@@ -80,9 +80,9 @@ export async function fetchTodoCounts(hass, config, getRawOffersForEntity) {
   }
 }
 
-export async function updateTodoQuantity(hass, config, itemName, itemPrice = '', mode = 'inc', customCount = null, entityId = '', dateFrom = '', dateTo = '') {
+export async function updateTodoQuantity(hass, config, itemName, itemPrice = '', mode = 'inc', customCount = null, entityId = '', dateFrom = '', dateTo = '', storeLabel = '') {
   if (!hass) return;
-  const formattedItemName = formatTodoItemName(itemName, itemPrice, entityId, config, hass);
+  const formattedItemName = formatTodoItemName(itemName, itemPrice, entityId, config, hass, storeLabel);
   const todoEntity = config.todo?.todo_entity;
   const target = parseMultiplier(formattedItemName);
   try {
