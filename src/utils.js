@@ -78,8 +78,21 @@ export function detectStoreLabel(entityId = '', hass = null) {
   return '';
 }
 
-export function formatTodoItemName(itemName, itemPrice, entityId = '', config = {}, hass = null) {
-  const storeLabel = detectStoreLabel(entityId, hass);
+export function detectOfferStoreLabel(item = {}, entityId = '', hass = null) {
+  const domain = String(item?.domain || '').trim().toLowerCase();
+  const storeName = String(item?.store_name || '').trim().toLowerCase();
+  const source = `${domain} ${storeName}`;
+  if (source.includes('aldi')) return 'ALDI';
+  if (source.includes('edeka')) return 'EDEKA';
+  if (source.includes('kaufland')) return 'KAUFLAND';
+  if (source.includes('lidl')) return 'LIDL';
+  if (source.includes('norma')) return 'NORMA';
+  if (source.includes('rewe')) return 'REWE';
+  return detectStoreLabel(entityId, hass);
+}
+
+export function formatTodoItemName(itemName, itemPrice, entityId = '', config = {}, hass = null, storeLabel = '') {
+  const resolvedStoreLabel = storeLabel || detectStoreLabel(entityId, hass);
   const suffix = storeLabel ? ` (${storeLabel})` : '';
   const baseName = `${itemName}${suffix}`;
   return !config.todo?.todo_price || !itemPrice ? baseName : `${baseName} - ${itemPrice}`;
@@ -131,7 +144,7 @@ export function normalizeOffer(item, storeEntity, hass = null, storeConf = null)
     item.image ||
     item.photo ||
     '';
-  const price = item.price || item.current_price || '';
+  const price = item.price || item.price_raw || item.price_numeric || item.current_price || '';
   const oldPrice = item.old_price || item.regular_price || '';
   let subtitle = item.subtitle || item.description || item.base_price || '';
   if (!subtitle && item.packaging) {
@@ -185,6 +198,7 @@ export function normalizeOffer(item, storeEntity, hass = null, storeConf = null)
   return {
     ...item,
     _storeEntity: storeEntity,
+    _storeLabel: detectOfferStoreLabel(item, storeEntity, hass),
     _name: name,
     _image: image,
     _price: price,
