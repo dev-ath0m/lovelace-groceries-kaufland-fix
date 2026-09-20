@@ -327,7 +327,16 @@ class DiscountsCard extends HTMLElement {
       const entityId = decodeURIComponent(todoContainer.dataset.entity || '');
       const dateFrom = decodeURIComponent(todoContainer.dataset.dateFrom || '');
       const dateTo = decodeURIComponent(todoContainer.dataset.dateTo || '');
-      const count = this._getItemTodoCount({ _name: name, _displayPrice: price }, entityId);
+      // Recover provider identity from the normalized offer before recalculating
+      // the Todo count. Aggregated offers need their store label (for example
+      // "(Kaufland)") to use the same lookup key as the original + action.
+      const matchingOffer = this._getRawOffersForEntity(entityId).find((offer) =>
+        offer?._name === name && String(offer?._displayPrice || '') === price
+      );
+      const count = this._getItemTodoCount(
+        { _name: name, _displayPrice: price, _storeLabel: matchingOffer?._storeLabel || '' },
+        entityId
+      );
       todoContainer.innerHTML = renderTodoControlsHtml(name, price, count, entityId, this._hass, dateFrom, dateTo);
     });
     if (this._filterTodoOnly) {
