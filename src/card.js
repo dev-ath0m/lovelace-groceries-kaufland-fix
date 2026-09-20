@@ -327,7 +327,16 @@ class DiscountsCard extends HTMLElement {
       const entityId = decodeURIComponent(todoContainer.dataset.entity || '');
       const dateFrom = decodeURIComponent(todoContainer.dataset.dateFrom || '');
       const dateTo = decodeURIComponent(todoContainer.dataset.dateTo || '');
-      const count = this._getItemTodoCount({ _name: name, _displayPrice: price }, entityId);
+      // Recover provider identity from the normalized offer before recalculating
+      // the Todo count. Aggregated offers need their store label (for example
+      // "(Kaufland)") to use the same lookup key as the original + action.
+      const matchingOffer = this._getRawOffersForEntity(entityId).find((offer) =>
+        offer?._name === name && String(offer?._displayPrice || '') === price
+      );
+      const count = this._getItemTodoCount(
+        { _name: name, _displayPrice: price, _storeLabel: matchingOffer?._storeLabel || '' },
+        entityId
+      );
       todoContainer.innerHTML = renderTodoControlsHtml(name, price, count, entityId, this._hass, dateFrom, dateTo);
     });
     if (this._filterTodoOnly) {
@@ -522,7 +531,13 @@ class DiscountsCard extends HTMLElement {
           const itemName = decodeURIComponent(decBtn.dataset.item);
           const itemPrice = decodeURIComponent(decBtn.dataset.price || '');
           const entityId = decodeURIComponent(decBtn.dataset.entity || '');
-          this._updateTodoQuantity(itemName, itemPrice, 'dec', null, entityId);
+          // Aggregated offers need the same provider identity on decrement
+          // that was used when the item was added.
+          const matchingOffer = this._getRawOffersForEntity(entityId).find((offer) =>
+            offer?._name === itemName && String(offer?._displayPrice || '') === itemPrice
+          );
+          const storeLabel = matchingOffer?._storeLabel || '';
+          this._updateTodoQuantity(itemName, itemPrice, 'dec', null, entityId, '', '', storeLabel);
           return;
         }
         if (countBadge) {
@@ -836,7 +851,7 @@ class DiscountsCard extends HTMLElement {
   }
 }
 
-const CARD_VERSION = '0.1.10';
+const CARD_VERSION = '0.1.11-beta.4';
 console.info(
   `%c DISCOUNTS-CARD (KAUFLAND FIX) %c v${CARD_VERSION} `,
   'color: white; background: #039be5; font-weight: 700;',
