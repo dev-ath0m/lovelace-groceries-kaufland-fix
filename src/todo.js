@@ -10,30 +10,6 @@ import {
 // homeassistant.components.todo.TodoListEntityFeature bit flags
 const TODO_FEATURE_SET_DUE_DATE = 16;
 const TODO_FEATURE_SET_DESCRIPTION = 64;
-const SHOPPING_LIST_TODO_ENTITY = 'todo.shopping_list';
-
-function isTodoEntityNotFound(err) {
-  return err?.code === 'not_found' || err?.error?.code === 'not_found' || err?.message === 'Entity not found';
-}
-
-async function fetchTodoItems(hass, todoEntity) {
-  try {
-    const res = await hass.callWS({ type: 'todo/item/list', entity_id: todoEntity });
-    return { items: res?.items || [], shoppingListFallback: false };
-  } catch (err) {
-    if (todoEntity !== SHOPPING_LIST_TODO_ENTITY || !isTodoEntityNotFound(err)) throw err;
-    console.warn('[discounts-card][todo] todo.shopping_list is not available as a Todo entity; falling back to Shopping List API', err);
-    const legacyItems = (await hass.callWS({ type: 'shopping_list/items' })) || [];
-    return {
-      items: legacyItems.map((item) => ({
-        summary: item.name,
-        uid: item.id,
-        status: item.complete ? 'completed' : 'needs_action'
-      })),
-      shoppingListFallback: true
-    };
-  }
-}
 
 export async function fetchTodoCounts(hass, config, getRawOffersForEntity) {
   if (!hass || !config?.todo?.todo_enabled) {
@@ -44,8 +20,8 @@ export async function fetchTodoCounts(hass, config, getRawOffersForEntity) {
   const rawList = [];
   try {
     if (todoEntity) {
-      const { items } = await fetchTodoItems(hass, todoEntity);
-      items.forEach((item) => {
+      const res = await hass.callWS({ type: 'todo/item/list', entity_id: todoEntity });
+      (res?.items || []).forEach((item) => {
         if (item.status !== 'completed') {
           const { count, base } = parseMultiplier(item.summary);
           const key = base.toLowerCase();
@@ -113,8 +89,8 @@ export async function updateTodoQuantity(hass, config, itemName, itemPrice = '',
   try {
     if (todoEntity) {
       console.debug('[discounts-card][todo] listing target Todo entity', todoEntity);
-      const { items, shoppingListFallback } = await fetchTodoItems(hass, todoEntity);
-      console.debug('[discounts-card][todo] Todo backend selected', { entityId: todoEntity, shoppingListFallback });
+      const res = await hass.callWS({ type: 'todo/item/list', entity_id: todoEntity });
+      const items = res?.items || [];
       console.debug('[discounts-card][todo] Todo list returned', { entityId: todoEntity, itemCount: items.length, items });
       const existing = items.find(
         (i) => i.status !== 'completed' && parseMultiplier(i.summary).base.toLowerCase() === target.base.toLowerCase()
@@ -170,7 +146,7 @@ export async function updateTodoQuantity(hass, config, itemName, itemPrice = '',
         // Apply optional offer metadata after creation. This keeps the + button
         // functional for aggregated offers and providers with partial Todo API
         // support, while still preserving due dates where the service supports them.
-        if (!shoppingListFallback && (dueDate || startDate)) {
+        if (dueDate || startDate) {
           try {
             console.debug('[discounts-card][todo] refreshing Todo list for metadata update', todoEntity);
             const refreshed = await hass.callWS({ type: 'todo/item/list', entity_id: todoEntity });
@@ -246,18 +222,12 @@ export async function clearStoreTodoItems(hass, config, storeEntity, storeOffers
   const todoEntity = config.todo?.todo_entity;
   try {
     if (todoEntity) {
-      const { items, shoppingListFallback } = await fetchTodoItems(hass, todoEntity);
-      const uidsToRemove = items
+      const res = await hass.callWS({ type: 'todo/item/list', entity_id: todoEntity });
+      const uidsToRemove = (res?.items || [])
         .filter((i) => i.status !== 'completed' && storeKeys.has(parseMultiplier(i.summary).base.toLowerCase()))
         .map((i) => i.uid);
       if (uidsToRemove.length > 0) {
-        if (shoppingListFallback) {
-          for (const itemId of uidsToRemove) {
-            await hass.callWS({ type: 'shopping_list/remove_item', item_id: itemId });
-          }
-        } else {
-          await hass.callService('todo', 'remove_item', { entity_id: todoEntity, item: uidsToRemove });
-        }
+        await hass.callService('todo', 'remove_item', { entity_id: todoEntity, item: uidsToRemove });
       }
     } else {
       const items = (await hass.callWS({ type: 'shopping_list/items' })) || [];
