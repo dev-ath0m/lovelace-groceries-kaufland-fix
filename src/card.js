@@ -531,7 +531,13 @@ class DiscountsCard extends HTMLElement {
           const itemName = decodeURIComponent(decBtn.dataset.item);
           const itemPrice = decodeURIComponent(decBtn.dataset.price || '');
           const entityId = decodeURIComponent(decBtn.dataset.entity || '');
-          this._updateTodoQuantity(itemName, itemPrice, 'dec', null, entityId);
+          // Aggregated offers need the same provider identity on decrement
+          // that was used when the item was added.
+          const matchingOffer = this._getRawOffersForEntity(entityId).find((offer) =>
+            offer?._name === itemName && String(offer?._displayPrice || '') === itemPrice
+          );
+          const storeLabel = matchingOffer?._storeLabel || '';
+          this._updateTodoQuantity(itemName, itemPrice, 'dec', null, entityId, '', '', storeLabel);
           return;
         }
         if (countBadge) {
@@ -845,7 +851,7 @@ class DiscountsCard extends HTMLElement {
   }
 }
 
-const CARD_VERSION = '0.1.11-beta.3';
+const CARD_VERSION = '0.1.11-beta.4';
 console.info(
   `%c DISCOUNTS-CARD (KAUFLAND FIX) %c v${CARD_VERSION} `,
   'color: white; background: #039be5; font-weight: 700;',
