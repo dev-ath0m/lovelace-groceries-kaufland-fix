@@ -93,7 +93,7 @@ export function detectOfferStoreLabel(item = {}, entityId = '', hass = null) {
 
 export function formatTodoItemName(itemName, itemPrice, entityId = '', config = {}, hass = null, storeLabel = '') {
   const resolvedStoreLabel = storeLabel || detectStoreLabel(entityId, hass);
-  const suffix = storeLabel ? ` (${storeLabel})` : '';
+  const suffix = resolvedStoreLabel ? ` (${resolvedStoreLabel})` : '';
   const baseName = `${itemName}${suffix}`;
   return !config.todo?.todo_price || !itemPrice ? baseName : `${baseName} - ${itemPrice}`;
 }
