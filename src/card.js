@@ -274,7 +274,14 @@ class DiscountsCard extends HTMLElement {
 
   _getItemTodoCount(item, entityId) {
     if (!this.config.todo?.todo_enabled) return 0;
-    const formattedName = formatTodoItemName(item._name, item._displayPrice, entityId || item._storeEntity, this.config, this._hass);
+    const formattedName = formatTodoItemName(
+      item._name,
+      item._displayPrice,
+      entityId || item._storeEntity,
+      this.config,
+      this._hass,
+      item._storeLabel
+    );
     const targetKey = parseMultiplier(formattedName).base.toLowerCase();
     return this._todoItemCounts[targetKey] || 0;
   }
@@ -494,8 +501,20 @@ class DiscountsCard extends HTMLElement {
           const itemName = decodeURIComponent(addBtn.dataset.item);
           const itemPrice = decodeURIComponent(addBtn.dataset.price || '');
           const entityId = decodeURIComponent(addBtn.dataset.entity || '');
-          const dateFrom = decodeURIComponent(addBtn.dataset.dateFrom || '');
-          const dateTo = decodeURIComponent(addBtn.dataset.dateTo || '');
+          let dateFrom = decodeURIComponent(addBtn.dataset.dateFrom || '');
+          let dateTo = decodeURIComponent(addBtn.dataset.dateTo || '');
+
+          // Recover offer dates from the normalized offer if the DOM dataset was
+          // rebuilt without them. This keeps due dates reliable across HA state
+          // updates and the Todo count refresh.
+          if (!dateFrom || !dateTo) {
+            const offers = this._getRawOffersForEntity(entityId);
+            const matchingOffer = offers.find((offer) => offer._name === itemName);
+            if (matchingOffer) {
+              dateFrom = dateFrom || matchingOffer._dateFrom || '';
+              dateTo = dateTo || matchingOffer._dateTo || '';
+            }
+          }
           addBtn.classList.add('added');
           setTimeout(() => addBtn.classList.remove('added'), 600);
           this._updateTodoQuantity(itemName, itemPrice, 'inc', null, entityId, dateFrom, dateTo);
