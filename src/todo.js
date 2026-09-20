@@ -128,14 +128,33 @@ export async function updateTodoQuantity(hass, config, itemName, itemPrice = '',
         // Home Assistant supports due_date directly when creating a Todo item.
         // Sending it with add_item avoids a race where an immediate list refresh
         // happens before the provider has exposed the newly-created item.
-        const createData = { ...serviceData };
-        if (dueDate) {
-          createData.due_date = dueDate;
+        // Create the item with the universally required field first. Some Todo
+        // providers expose due-date/description support inconsistently in their
+        // entity attributes. Sending optional fields in the initial add call can
+        // therefore make the whole add fail even though the item itself is valid.
+        await hass.callService('todo', 'add_item', serviceData);
+
+        // Apply optional offer metadata after creation. This keeps the + button
+        // functional for aggregated offers and providers with partial Todo API
+        // support, while still preserving due dates where the service supports them.
+        if (dueDate || startDate) {
+          try {
+            const refreshed = await hass.callWS({ type: 'todo/item/list', entity_id: todoEntity });
+            const created = (refreshed?.items || []).find(
+              (i) => i.status !== 'completed' && i.summary === serviceData.item
+            );
+            if (created) {
+              const metadata = { entity_id: todoEntity, item: created.uid };
+              if (dueDate) metadata.due_date = dueDate;
+              if (startDate) {
+                metadata.description = localize('default.valid_from_description', hass).replace('{date}', startDate);
+              }
+              await hass.callService('todo', 'update_item', metadata);
+            }
+          } catch (metadataError) {
+            console.warn('Todo item added, but offer metadata could not be applied:', metadataError);
+          }
         }
-        if (startDate) {
-          createData.description = localize('default.valid_from_description', hass).replace('{date}', startDate);
-        }
-        await hass.callService('todo', 'add_item', createData);
       }
     } else {
       const items = (await hass.callWS({ type: 'shopping_list/items' })) || [];
