@@ -296,8 +296,8 @@ class DiscountsCard extends HTMLElement {
     this._customStoreTodoItems = customStoreTodoItems;
   }
 
-  async _updateTodoQuantity(itemName, itemPrice = '', mode = 'inc', customCount = null, entityId = '', dateFrom = '', dateTo = '') {
-    await updateTodoQuantity(this._hass, this.config, itemName, itemPrice, mode, customCount, entityId, dateFrom, dateTo);
+  async _updateTodoQuantity(itemName, itemPrice = '', mode = 'inc', customCount = null, entityId = '', dateFrom = '', dateTo = '', storeLabel = '') {
+    await updateTodoQuantity(this._hass, this.config, itemName, itemPrice, mode, customCount, entityId, dateFrom, dateTo, storeLabel);
     await this._fetchTodoCounts();
     this._patchTodoElementsOnly();
   }
@@ -507,17 +507,14 @@ class DiscountsCard extends HTMLElement {
           // Recover offer dates from the normalized offer if the DOM dataset was
           // rebuilt without them. This keeps due dates reliable across HA state
           // updates and the Todo count refresh.
-          if (!dateFrom || !dateTo) {
-            const offers = this._getRawOffersForEntity(entityId);
-            const matchingOffer = offers.find((offer) => offer._name === itemName);
-            if (matchingOffer) {
-              dateFrom = dateFrom || matchingOffer._dateFrom || '';
-              dateTo = dateTo || matchingOffer._dateTo || '';
-            }
-          }
+          const offers = this._getRawOffersForEntity(entityId);
+          const matchingOffer = offers.find((offer) => offer._name === itemName);
+          const storeLabel = matchingOffer?._storeLabel || '';
+          dateFrom = matchingOffer?._dateFrom || dateFrom;
+          dateTo = matchingOffer?._dateTo || dateTo;
           addBtn.classList.add('added');
           setTimeout(() => addBtn.classList.remove('added'), 600);
-          this._updateTodoQuantity(itemName, itemPrice, 'inc', null, entityId, dateFrom, dateTo);
+          this._updateTodoQuantity(itemName, itemPrice, 'inc', null, entityId, dateFrom, dateTo, storeLabel);
           return;
         }
         if (decBtn) {
@@ -839,7 +836,7 @@ class DiscountsCard extends HTMLElement {
   }
 }
 
-const CARD_VERSION = '0.1.4';
+const CARD_VERSION = '0.1.5';
 console.info(
   `%c DISCOUNTS-CARD (KAUFLAND FIX) %c v${CARD_VERSION} `,
   'color: white; background: #039be5; font-weight: 700;',
