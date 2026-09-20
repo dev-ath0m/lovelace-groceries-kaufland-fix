@@ -296,8 +296,8 @@ class DiscountsCard extends HTMLElement {
     this._customStoreTodoItems = customStoreTodoItems;
   }
 
-  async _updateTodoQuantity(itemName, itemPrice = '', mode = 'inc', customCount = null, entityId = '', dateFrom = '', dateTo = '') {
-    await updateTodoQuantity(this._hass, this.config, itemName, itemPrice, mode, customCount, entityId, dateFrom, dateTo);
+  async _updateTodoQuantity(itemName, itemPrice = '', mode = 'inc', customCount = null, entityId = '', dateFrom = '', dateTo = '', storeLabel = '') {
+    await updateTodoQuantity(this._hass, this.config, itemName, itemPrice, mode, customCount, entityId, dateFrom, dateTo, storeLabel);
     await this._fetchTodoCounts();
     this._patchTodoElementsOnly();
   }
@@ -511,9 +511,10 @@ class DiscountsCard extends HTMLElement {
           const matchingOffer = offers.find((offer) => offer._name === itemName);
           dateFrom = matchingOffer?._dateFrom || dateFrom;
           dateTo = matchingOffer?._dateTo || dateTo;
+          const storeLabel = matchingOffer?._storeLabel || '';
           addBtn.classList.add('added');
           setTimeout(() => addBtn.classList.remove('added'), 600);
-          this._updateTodoQuantity(itemName, itemPrice, 'inc', null, entityId, dateFrom, dateTo);
+          this._updateTodoQuantity(itemName, itemPrice, 'inc', null, entityId, dateFrom, dateTo, storeLabel);
           return;
         }
         if (decBtn) {
