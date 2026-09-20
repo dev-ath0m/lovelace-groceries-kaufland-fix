@@ -62,7 +62,25 @@ jobs:
           data = json.loads(path.read_text())
           data["version"] = os.environ["VERSION"]
           path.write_text(json.dumps(data, indent=2) + "\n")
+
+          source = Path("src/card.js")
+          source_text = source.read_text()
+          import re
+          source_text, count = re.subn(
+              r"const CARD_VERSION = '[^']+';",
+              f"const CARD_VERSION = '{os.environ['VERSION']}';",
+              source_text,
+              count=1,
+          )
+          if count != 1:
+              raise SystemExit("Could not update CARD_VERSION in src/card.js")
+          source.write_text(source_text)
           PY
+
+      - name: Build distributed card
+        run: |
+          npm ci
+          npm run build
 
       - name: Commit version bump
         env:
@@ -71,7 +89,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          git add package.json
+          git add package.json src/card.js card.js
 
           if git diff --cached --quiet; then
             echo "package.json already contains version $VERSION; no commit needed."
