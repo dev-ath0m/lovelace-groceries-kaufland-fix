@@ -836,7 +836,7 @@ class DiscountsCard extends HTMLElement {
   }
 }
 
-const CARD_VERSION = '0.1.8';
+const CARD_VERSION = '0.1.9';
 console.info(
   `%c DISCOUNTS-CARD (KAUFLAND FIX) %c v${CARD_VERSION} `,
   'color: white; background: #039be5; font-weight: 700;',
