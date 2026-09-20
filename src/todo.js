@@ -47,7 +47,7 @@ export async function fetchTodoCounts(hass, config, getRawOffersForEntity) {
       const sensorOffers = getRawOffersForEntity(s.entity);
       const sensorNames = new Set(
         sensorOffers.map((o) => {
-          const fmt = formatTodoItemName(o._name, o._displayPrice, s.entity, config, hass);
+          const fmt = formatTodoItemName(o._name, o._displayPrice, s.entity, config, hass, o._storeLabel);
           return parseMultiplier(fmt).base.toLowerCase();
         })
       );
@@ -80,9 +80,9 @@ export async function fetchTodoCounts(hass, config, getRawOffersForEntity) {
   }
 }
 
-export async function updateTodoQuantity(hass, config, itemName, itemPrice = '', mode = 'inc', customCount = null, entityId = '', dateFrom = '', dateTo = '') {
+export async function updateTodoQuantity(hass, config, itemName, itemPrice = '', mode = 'inc', customCount = null, entityId = '', dateFrom = '', dateTo = '', storeLabel = '') {
   if (!hass) return;
-  const formattedItemName = formatTodoItemName(itemName, itemPrice, entityId, config, hass);
+  const formattedItemName = formatTodoItemName(itemName, itemPrice, entityId, config, hass, storeLabel);
   const todoEntity = config.todo?.todo_entity;
   const target = parseMultiplier(formattedItemName);
   try {
@@ -125,26 +125,17 @@ export async function updateTodoQuantity(hass, config, itemName, itemPrice = '',
           entity_id: todoEntity,
           item: count > 1 ? `${count}x ${target.base}` : target.base
         };
-        // Create first, then set due date separately. Some Todo providers
-        // accept description during creation but persist due dates on update.
+        // Home Assistant supports due_date directly when creating a Todo item.
+        // Sending it with add_item avoids a race where an immediate list refresh
+        // happens before the provider has exposed the newly-created item.
         const createData = { ...serviceData };
+        if (dueDate) {
+          createData.due_date = dueDate;
+        }
         if (startDate) {
           createData.description = localize('default.valid_from_description', hass).replace('{date}', startDate);
         }
         await hass.callService('todo', 'add_item', createData);
-        if (dueDate) {
-          const refreshed = await hass.callWS({ type: 'todo/item/list', entity_id: todoEntity });
-          const created = (refreshed?.items || []).find(
-            (i) => i.status !== 'completed' && parseMultiplier(i.summary).base.toLowerCase() === target.base.toLowerCase()
-          );
-          if (created?.uid) {
-            await hass.callService('todo', 'update_item', {
-              entity_id: todoEntity,
-              item: created.uid,
-              due_date: dueDate
-            });
-          }
-        }
       }
     } else {
       const items = (await hass.callWS({ type: 'shopping_list/items' })) || [];
@@ -177,7 +168,7 @@ export async function clearStoreTodoItems(hass, config, storeEntity, storeOffers
   const allStoreOffers = [...storeOffers, ...customOffers];
   const storeKeys = new Set(
     allStoreOffers.map((item) => {
-      const formattedName = formatTodoItemName(item._name, item._displayPrice, storeEntity, config, hass);
+      const formattedName = formatTodoItemName(item._name, item._displayPrice, storeEntity, config, hass, item._storeLabel);
       return parseMultiplier(formattedName).base.toLowerCase();
     })
   );
