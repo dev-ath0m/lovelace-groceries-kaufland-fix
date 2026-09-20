@@ -47,7 +47,7 @@ export async function fetchTodoCounts(hass, config, getRawOffersForEntity) {
       const sensorOffers = getRawOffersForEntity(s.entity);
       const sensorNames = new Set(
         sensorOffers.map((o) => {
-          const fmt = formatTodoItemName(o._name, o._displayPrice, s.entity, config, hass);
+          const fmt = formatTodoItemName(o._name, o._displayPrice, s.entity, config, hass, o._storeLabel);
           return parseMultiplier(fmt).base.toLowerCase();
         })
       );
@@ -159,7 +159,7 @@ export async function clearStoreTodoItems(hass, config, storeEntity, storeOffers
   const allStoreOffers = [...storeOffers, ...customOffers];
   const storeKeys = new Set(
     allStoreOffers.map((item) => {
-      const formattedName = formatTodoItemName(item._name, item._displayPrice, storeEntity, config, hass);
+      const formattedName = formatTodoItemName(item._name, item._displayPrice, storeEntity, config, hass, item._storeLabel);
       return parseMultiplier(formattedName).base.toLowerCase();
     })
   );
