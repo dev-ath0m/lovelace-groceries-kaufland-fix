@@ -52,7 +52,7 @@ export function renderOfferItemHtml(item, config, hass, filterQuery, getItemTodo
   const safeDisplayPrice = escapeHtml(item._displayPrice);
   const safeDisplayOldPrice = escapeHtml(item._displayOldPrice);
   const storeEntity = item._storeEntity || config.entities[0]?.entity;
-  const storeLabel = detectStoreLabel(storeEntity, hass);
+  const storeLabel = item._storeLabel || detectStoreLabel(storeEntity, hass);
   const existingCount = getItemTodoCount(item, storeEntity);
   const isBroken = !sanitizedImgUrl || brokenImageUrls.has(sanitizedImgUrl);
   const zoomEnabled = config.zoom_images !== false;
