@@ -1,6 +1,6 @@
 {
   "name": "lovelace-groceries-kaufland-fix",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "devDependencies": {
     "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-node-resolve": "^16.0.3",
